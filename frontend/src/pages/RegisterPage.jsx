@@ -175,6 +175,7 @@ export function RegisterPage() {
               <form
                 onSubmit={onSubmit}
                 className="mt-8 space-y-5"
+                autoComplete="off"
               >
                 {/* NAME */}
                 <div>
@@ -188,6 +189,7 @@ export function RegisterPage() {
                     <input
                       type="text"
                       name="name"
+                      autoComplete="name"
                       value={form.name}
                       onChange={onChange}
                       required
@@ -209,6 +211,7 @@ export function RegisterPage() {
                     <input
                       type="text"
                       name="phone"
+                      autoComplete="tel"
                       value={form.phone}
                       onChange={onChange}
                       required
@@ -230,6 +233,7 @@ export function RegisterPage() {
                     <input
                       type="password"
                       name="password"
+                      autoComplete="new-password"
                       value={form.password}
                       onChange={onChange}
                       required
@@ -251,6 +255,7 @@ export function RegisterPage() {
                     <input
                       type="password"
                       name="confirmPassword"
+                      autoComplete="new-password"
                       value={form.confirmPassword}
                       onChange={onChange}
                       required
