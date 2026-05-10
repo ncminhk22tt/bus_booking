@@ -14,6 +14,14 @@ async function getBookingsByTrip(req, res) {
       })
     }
 
+    // Kiểm tra trip có tồn tại không
+    const [tripCheck] = await db.query('SELECT id FROM trips WHERE id = ?', [tripId])
+    if (tripCheck.length === 0) {
+      return res.status(404).json({
+        message: "Chuyến đi không tồn tại"
+      })
+    }
+
     const rows = await bookingModel.getBookingsByTrip(tripId, isSuperAdmin ? null : companyId)
     res.json(rows)
   } catch (error) {
