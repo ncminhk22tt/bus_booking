@@ -150,7 +150,62 @@ async function getBookingsWithTickets(customerId, status) {
     }
   }
 
-  return Array.from(map.values())
+async function getBookingsByTrip(tripId, companyId = null) {
+  let query = `
+    SELECT 
+      b.id AS booking_id,
+      b.customer_id,
+      b.total_price,
+      b.status AS booking_status,
+      b.created_at AS booking_created_at,
+      c.name AS customer_name,
+      c.phone AS customer_phone
+    FROM bookings b
+    JOIN customers c ON c.id = b.customer_id
+    WHERE b.trip_id = ?
+  `
+  const params = [tripId]
+
+  if (companyId) {
+    query += ` AND EXISTS (
+      SELECT 1 FROM trips t 
+      JOIN buses bs ON bs.id = t.bus_id 
+      WHERE t.id = b.trip_id AND bs.bus_company_id = ?
+    )`
+    params.push(companyId)
+  }
+
+  const [rows] = await db.query(query, params)
+  return rows
+}
+
+async function getTripSeatsByTrip(tripId, companyId = null) {
+  let query = `
+    SELECT 
+      ts.id,
+      ts.seat_id,
+      ts.status,
+      ts.is_vip,
+      s.seat_number,
+      s.floor,
+      s.seat_type,
+      b.name AS bus_name,
+      bc.name AS bus_company_name
+    FROM trip_seats ts
+    JOIN seats s ON s.id = ts.seat_id
+    JOIN buses b ON b.id = s.bus_id
+    LEFT JOIN bus_companies bc ON bc.id = b.bus_company_id
+    WHERE ts.trip_id = ?
+  `
+  const params = [tripId]
+
+  if (companyId) {
+    query += ` AND b.bus_company_id = ?`
+    params.push(companyId)
+  }
+
+  const [rows] = await db.query(query, params)
+  return rows
 }
 
 async function getBookingById(customerId, bookingId) {

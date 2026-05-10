@@ -27,14 +27,14 @@ const authMiddleware = async (req, res, next) => {
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET)
 
-    if (decoded.role !== "admin") {
+    if (decoded.role !== "admin" && decoded.role !== "super_admin") {
       return res.status(403).json({
         message: "Không có quyền truy cập"
       })
     }
 
     const [rows] = await db.query(
-      "SELECT id, role, is_active, bus_company_id FROM admins WHERE id = ? AND role = 'admin' LIMIT 1",
+      "SELECT id, role, is_active, bus_company_id FROM admins WHERE id = ? AND (role = 'admin' OR role = 'super_admin') LIMIT 1",
       [decoded.id]
     )
 

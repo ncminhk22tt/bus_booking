@@ -5,13 +5,16 @@ async function getBookingsByTrip(req, res) {
   try {
     const { tripId } = req.params
     const companyId = req.user && req.user.bus_company_id
-    if (!companyId) {
+    const isSuperAdmin = req.user && req.user.role === 'super_admin'
+
+    // Super admin có thể xem tất cả, admin thường chỉ xem của công ty mình
+    if (!isSuperAdmin && !companyId) {
       return res.status(403).json({
         message: "Thiếu quyền nhà xe"
       })
     }
 
-    const rows = await bookingModel.getBookingsByTrip(tripId, companyId)
+    const rows = await bookingModel.getBookingsByTrip(tripId, isSuperAdmin ? null : companyId)
     res.json(rows)
   } catch (error) {
     console.error("Admin bookings by trip error:", error)
@@ -25,13 +28,16 @@ async function getTripSeatsByTrip(req, res) {
   try {
     const { tripId } = req.params
     const companyId = req.user && req.user.bus_company_id
-    if (!companyId) {
+    const isSuperAdmin = req.user && req.user.role === 'super_admin'
+
+    // Super admin có thể xem tất cả, admin thường chỉ xem của công ty mình
+    if (!isSuperAdmin && !companyId) {
       return res.status(403).json({
         message: "Thiếu quyền nhà xe"
       })
     }
 
-    const seats = await bookingModel.getTripSeatsByTrip(tripId, companyId)
+    const seats = await bookingModel.getTripSeatsByTrip(tripId, isSuperAdmin ? null : companyId)
     res.json(seats)
   } catch (error) {
     console.error("Admin trip seats error:", error)
