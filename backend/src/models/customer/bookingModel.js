@@ -153,64 +153,6 @@ async function getBookingsWithTickets(customerId, status) {
   return Array.from(map.values())
 }
 
-async function getBookingsByTrip(tripId, companyId = null) {
-  let query = `
-    SELECT 
-      b.id AS booking_id,
-      b.customer_id,
-      b.total_price,
-      b.status AS booking_status,
-      b.created_at AS booking_created_at,
-      c.name AS customer_name,
-      c.phone AS customer_phone
-    FROM bookings b
-    JOIN customers c ON c.id = b.customer_id
-    WHERE b.trip_id = ?
-  `
-  const params = [tripId]
-
-  if (companyId) {
-    query += ` AND EXISTS (
-      SELECT 1 FROM trips t 
-      JOIN buses bs ON bs.id = t.bus_id 
-      WHERE t.id = b.trip_id AND bs.bus_company_id = ?
-    )`
-    params.push(companyId)
-  }
-
-  const [rows] = await db.query(query, params)
-  return rows
-}
-
-async function getTripSeatsByTrip(tripId, companyId = null) {
-  let query = `
-    SELECT 
-      ts.id,
-      ts.seat_id,
-      ts.status,
-      ts.is_vip,
-      s.seat_number,
-      s.floor,
-      s.seat_type,
-      b.name AS bus_name,
-      bc.name AS bus_company_name
-    FROM trip_seats ts
-    JOIN seats s ON s.id = ts.seat_id
-    JOIN buses b ON b.id = s.bus_id
-    LEFT JOIN bus_companies bc ON bc.id = b.bus_company_id
-    WHERE ts.trip_id = ?
-  `
-  const params = [tripId]
-
-  if (companyId) {
-    query += ` AND b.bus_company_id = ?`
-    params.push(companyId)
-  }
-
-  const [rows] = await db.query(query, params)
-  return rows
-}
-
 async function getBookingById(customerId, bookingId) {
   const [rows] = await db.query(
     `
@@ -304,7 +246,14 @@ async function getBookingDetail(customerId, bookingId) {
   return booking
 }
 
-async function getBookingsByTrip(tripId, companyId) {
+async function getBookingsByTrip(tripId, companyId = null) {
+  const params = [tripId]
+  let companyFilter = ""
+  if (companyId !== null) {
+    companyFilter = " AND bs.bus_company_id = ?"
+    params.push(companyId)
+  }
+
   const [rows] = await db.query(
     `
     SELECT 
@@ -327,18 +276,25 @@ async function getBookingsByTrip(tripId, companyId) {
     JOIN customers c ON b.customer_id = c.id
     LEFT JOIN tickets tk ON tk.booking_id = b.id
     LEFT JOIN seats s ON tk.seat_id = s.id
-    WHERE b.trip_id = ? AND bs.bus_company_id = ?
+    WHERE b.trip_id = ?${companyFilter}
     GROUP BY b.id, b.status, b.contact_name, b.contact_phone, c.name, c.phone, t.departure_time, b.total_price, b.created_at
     ORDER BY b.created_at DESC
     `,
-    [tripId, companyId]
+    params
   )
   return rows
 }
 
-async function getTripSeatsByTrip(tripId, companyId) {
+async function getTripSeatsByTrip(tripId, companyId = null) {
   const hasVipColumn = await hasTripSeatVipColumn()
   const vipSelect = hasVipColumn ? "ts.is_vip," : "0 AS is_vip,"
+
+  const params = [tripId]
+  let companyFilter = ""
+  if (companyId !== null) {
+    companyFilter = " AND b.bus_company_id = ?"
+    params.push(companyId)
+  }
 
   const [rows] = await db.query(
     `
@@ -357,11 +313,10 @@ async function getTripSeatsByTrip(tripId, companyId) {
     JOIN trips t ON ts.trip_id = t.id
     JOIN buses b ON t.bus_id = b.id
     JOIN seats s ON ts.seat_id = s.id
-    WHERE ts.trip_id = ?
-      AND b.bus_company_id = ?
+    WHERE ts.trip_id = ?${companyFilter}
     ORDER BY s.floor, s.row_index, s.col_index
     `,
-    [tripId, companyId]
+    params
   )
 
   return rows.map((row) => ({
@@ -400,6 +355,7 @@ async function updateTripSeatSettings(tripId, seatId, companyId, { isVip, locked
 }
 
 module.exports = {
+  hasTripSeatVipColumn,
   createBookingWithTickets,
   getBookingsWithTickets,
   getBookingById,

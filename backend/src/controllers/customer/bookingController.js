@@ -74,9 +74,11 @@ async function bookTicket(req, res) {
       }
 
       const seatPlaceholders = uniqueSeats.map(() => "?").join(",")
+      const hasVipColumn = await bookingModel.hasTripSeatVipColumn()
+      const vipColumnSelect = hasVipColumn ? "is_vip" : "0 AS is_vip"
       const [seatRows] = await connection.query(
         `
-        SELECT seat_id, status, is_vip
+        SELECT seat_id, status, ${vipColumnSelect}
         FROM trip_seats
         WHERE trip_id = ?
           AND seat_id IN (${seatPlaceholders})
