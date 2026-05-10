@@ -1,0 +1,35 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon src/server.js",
+    "start": "node src/server.js",
+    "db:reset": "node scripts/apply_schema.js",
+    "db:seed": "node scripts/seed_db.js",
+    "db:migrate": "node scripts/migrate_db.js",
+    "test:e2e": "node scripts/e2e_customer_test.js",
+    "db:seed:bulk": "node scripts/seed_bulk_data.js",
+    "db:seed:admin": "node scripts/seed_admin.js",
+    "db:seed:seats": "node scripts/seed_seat_layouts.js",
+    "db:seed:super-admin": "node scripts/seed_super_admin.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "bcryptjs": "^3.0.3",
+    "cors": "^2.8.6",
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "mysql2": "^3.19.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  }
+}
