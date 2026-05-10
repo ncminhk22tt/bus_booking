@@ -13,6 +13,22 @@ async function register(req, res) {
       })
     }
 
+    // Validate phone: phải là số, 10-15 ký tự
+    const phoneRegex = /^\d{10,15}$/
+    if (!phoneRegex.test(phone)) {
+      return res.status(400).json({
+        message: "Số điện thoại phải là số và có độ dài từ 10 đến 15 ký tự"
+      })
+    }
+
+    // Validate password: 8-15 ký tự, chỉ a-z A-Z
+    const passwordRegex = /^[a-zA-Z]{8,15}$/
+    if (!passwordRegex.test(password)) {
+      return res.status(400).json({
+        message: "Mật khẩu phải có độ dài từ 8 đến 15 ký tự và chỉ chứa chữ cái a-z, A-Z"
+      })
+    }
+
     const existing = await customerModel.findByPhone(phone)
     if (existing) {
       return res.status(409).json({
