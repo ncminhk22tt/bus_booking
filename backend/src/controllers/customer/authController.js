@@ -1,7 +1,7 @@
 ﻿const bcrypt = require("bcryptjs")
 const jwt = require("jsonwebtoken")
 const customerModel = require("../../models/customer/customerModel")
-const db = require("../config/db")
+// const db = require("../config/db")
 
 async function register(req, res) {
   try {
