@@ -21,11 +21,11 @@ async function register(req, res) {
       })
     }
 
-    // Validate password: 8-15 ký tự, chỉ a-z A-Z
-    const passwordRegex = /^[a-zA-Z]{8,15}$/
+    // Validate password: 8-15 ký tự, chỉ A-Z, a-z, 0-9
+    const passwordRegex = /^[A-Za-z0-9]{8,15}$/
     if (!passwordRegex.test(password)) {
       return res.status(400).json({
-        message: "Mật khẩu phải có độ dài từ 8 đến 15 ký tự và chỉ chứa chữ cái a-z, A-Z"
+        message: "Mật khẩu phải có độ dài từ 8 đến 15 ký tự và chỉ chứa chữ hoa, chữ thường và số"
       })
     }
 

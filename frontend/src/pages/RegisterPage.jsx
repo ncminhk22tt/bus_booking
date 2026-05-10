@@ -49,6 +49,12 @@ export function RegisterPage() {
       return
     }
 
+    const passwordRegex = /^[A-Za-z0-9]{8,15}$/
+    if (!passwordRegex.test(form.password)) {
+      setError("Mật khẩu phải có độ dài từ 8 đến 15 ký tự và chỉ chứa chữ hoa, chữ thường và số")
+      return
+    }
+
     try {
       setLoading(true)
       setError("")
