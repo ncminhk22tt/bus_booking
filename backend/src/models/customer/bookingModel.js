@@ -150,6 +150,9 @@ async function getBookingsWithTickets(customerId, status) {
     }
   }
 
+  return Array.from(map.values())
+}
+
 async function getBookingsByTrip(tripId, companyId = null) {
   let query = `
     SELECT 
