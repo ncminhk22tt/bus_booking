@@ -4,6 +4,11 @@ async function hasTripSeatVipColumn() {
   return rows.length > 0
 }
 
+async function hasBookingContactColumns() {
+  const [rows] = await db.query("SHOW COLUMNS FROM bookings LIKE 'contact_name'")
+  return rows.length > 0
+}
+
 function normalizeSeatNumberByFloor(seatNumber, floor) {
   const raw = String(seatNumber || "").trim()
   if (!raw) return raw
@@ -29,14 +34,23 @@ async function createBookingWithTickets(connection, {
   bookingStatus = "confirmed",
   ticketStatus = "confirmed"
 }) {
-  const [bookingResult] = await connection.query(
-    `
+  const hasContactColumns = await hasBookingContactColumns()
+  const insertQuery = hasContactColumns
+    ? `
     INSERT INTO bookings
     (customer_id, contact_name, contact_phone, trip_id, total_price, status)
     VALUES (?,?,?,?,?,?)
-    `,
-    [customerId, contactName, contactPhone, tripId, totalPrice, bookingStatus]
-  )
+    `
+    : `
+    INSERT INTO bookings
+    (customer_id, trip_id, total_price, status)
+    VALUES (?,?,?,?)
+    `
+  const insertParams = hasContactColumns
+    ? [customerId, contactName, contactPhone, tripId, totalPrice, bookingStatus]
+    : [customerId, tripId, totalPrice, bookingStatus]
+
+  const [bookingResult] = await connection.query(insertQuery, insertParams)
 
   const bookingId = bookingResult.insertId
 
@@ -247,8 +261,17 @@ async function getBookingDetail(customerId, bookingId) {
 }
 
 async function getBookingsByTrip(tripId, companyId = null) {
+  const hasContactColumns = await hasBookingContactColumns()
   const params = [tripId]
   let companyFilter = ""
+  let customerSelect = "c.name AS customer_name, c.phone AS customer_phone"
+  let groupBy = "b.id, b.status, c.name, c.phone, t.departure_time, b.total_price, b.created_at"
+
+  if (hasContactColumns) {
+    customerSelect = "COALESCE(NULLIF(TRIM(b.contact_name), ''), c.name) AS customer_name, COALESCE(NULLIF(TRIM(b.contact_phone), ''), c.phone) AS customer_phone"
+    groupBy = "b.id, b.status, b.contact_name, b.contact_phone, c.name, c.phone, t.departure_time, b.total_price, b.created_at"
+  }
+
   if (companyId !== null) {
     companyFilter = " AND bs.bus_company_id = ?"
     params.push(companyId)
@@ -259,8 +282,7 @@ async function getBookingsByTrip(tripId, companyId = null) {
     SELECT 
       b.id AS booking_id,
       b.status AS booking_status,
-      COALESCE(NULLIF(TRIM(b.contact_name), ''), c.name) AS customer_name,
-      COALESCE(NULLIF(TRIM(b.contact_phone), ''), c.phone) AS customer_phone,
+      ${customerSelect},
       t.departure_time,
       GROUP_CONCAT(
         DISTINCT s.seat_number
@@ -277,7 +299,7 @@ async function getBookingsByTrip(tripId, companyId = null) {
     LEFT JOIN tickets tk ON tk.booking_id = b.id
     LEFT JOIN seats s ON tk.seat_id = s.id
     WHERE b.trip_id = ?${companyFilter}
-    GROUP BY b.id, b.status, b.contact_name, b.contact_phone, c.name, c.phone, t.departure_time, b.total_price, b.created_at
+    GROUP BY ${groupBy}
     ORDER BY b.created_at DESC
     `,
     params

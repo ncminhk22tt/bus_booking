@@ -204,6 +204,8 @@ CREATE TABLE trip_seats (
 CREATE TABLE bookings (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,
   customer_id BIGINT NOT NULL,
+  contact_name VARCHAR(255) NULL,
+  contact_phone VARCHAR(20) NULL,
   trip_id BIGINT NOT NULL,
   total_price DECIMAL(10,2) NOT NULL,
   status ENUM('pending','confirmed','cancelled','expired') DEFAULT 'confirmed',
