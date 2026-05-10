@@ -1,0 +1,96 @@
+﻿@import url("https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color: #0e1726;
+  background: #ffffff;
+  font-family: "Manrope", system-ui, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background: #ffffff;
+  color: #0e1726;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+.glass-panel {
+  background: #ffffff;
+  backdrop-filter: blur(8px);
+}
+
+.seat-tile {
+  transition: transform 160ms ease, box-shadow 160ms ease, background-color 160ms ease;
+}
+
+.seat-tile:hover {
+  transform: translateY(-1px);
+}
+
+.dual-range {
+  pointer-events: none;
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent;
+}
+
+.dual-range::-webkit-slider-runnable-track {
+  height: 8px;
+  border-radius: 9999px;
+  background: transparent;
+}
+
+.dual-range::-webkit-slider-thumb {
+  pointer-events: auto;
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  margin-top: -4px;
+  border-radius: 9999px;
+  border: 2px solid #2f7df4;
+  background: #2f7df4;
+  cursor: grab;
+}
+
+.dual-range:active::-webkit-slider-thumb {
+  cursor: grabbing;
+}
+
+.dual-range::-moz-range-track {
+  height: 8px;
+  border-radius: 9999px;
+  background: transparent;
+}
+
+.dual-range::-moz-range-thumb {
+  pointer-events: auto;
+  width: 16px;
+  height: 16px;
+  border-radius: 9999px;
+  border: 2px solid #2f7df4;
+  background: #2f7df4;
+  cursor: grab;
+}
