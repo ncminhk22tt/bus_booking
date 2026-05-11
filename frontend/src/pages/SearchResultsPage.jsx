@@ -285,10 +285,77 @@ export function SearchResultsPage() {
   const inputClasses = "h-10 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm outline-none transition-colors focus:border-brand-500 focus:bg-white focus:ring-1 focus:ring-brand-500"
   
   return (
-    <div className="grid h-full min-h-0 grid-cols-[300px_minmax(0,1fr)] gap-6 overflow-hidden bg-slate-50/50 p-4">
-      
+    <div className="grid h-[calc(100vh-76px)] grid-rows-[auto_minmax(0,1fr)] gap-3 p-4">
+      <section className="sticky top-[16px] z-20 rounded-2xl border border-slate-200 bg-white p-3 shadow-sm">
+        <form onSubmit={submitSearch} className="grid gap-2.5 md:grid-cols-[1fr_1fr_1fr_auto]">
+          <label className="space-y-1 text-left">
+            <span className="text-xs font-bold text-slate-700">Điểm đi</span>
+            <div className="relative">
+              <MapPin className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
+              <select
+                name="from_city"
+                value={searchForm.from_city}
+                onChange={updateSearchField}
+                required
+                disabled={citiesLoading}
+                className="h-9 w-full appearance-none rounded-lg border border-slate-200 bg-slate-50 pl-8 pr-3 text-sm font-medium outline-none transition-colors focus:border-brand-500 focus:bg-white focus:ring-1 focus:ring-brand-500"
+              >
+                <option value="" disabled>{citiesLoading ? "Đang tải..." : "Chọn điểm đi"}</option>
+                {cities.map((city) => (
+                  <option key={city.id} value={city.id}>{city.name}</option>
+                ))}
+              </select>
+            </div>
+          </label>
+
+          <label className="space-y-1 text-left">
+            <span className="text-xs font-bold text-slate-700">Điểm đến</span>
+            <div className="relative">
+              <MapPin className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+              <select
+                name="to_city"
+                value={searchForm.to_city}
+                onChange={updateSearchField}
+                required
+                disabled={citiesLoading}
+                className="h-9 w-full appearance-none rounded-lg border border-slate-200 bg-slate-50 pl-8 pr-3 text-sm font-medium outline-none transition-colors focus:border-brand-500 focus:bg-white focus:ring-1 focus:ring-brand-500"
+              >
+                <option value="" disabled>{citiesLoading ? "Đang tải..." : "Chọn điểm đến"}</option>
+                {cities.map((city) => (
+                  <option key={city.id} value={city.id}>{city.name}</option>
+                ))}
+              </select>
+            </div>
+          </label>
+
+          <label className="space-y-1 text-left">
+            <span className="text-xs font-bold text-slate-700">Ngày khởi hành</span>
+            <div className="relative">
+              <CalendarDays className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+              <input
+                type="date"
+                name="date"
+                value={searchForm.date}
+                min={today}
+                onChange={updateSearchField}
+                required
+                className="h-9 w-full rounded-lg border border-slate-200 bg-slate-50 pl-8 pr-3 text-sm font-medium outline-none transition-colors focus:border-brand-500 focus:bg-white focus:ring-1 focus:ring-brand-500"
+              />
+            </div>
+          </label>
+
+          <div className="flex items-end">
+            <button type="submit" className="h-9 w-full rounded-lg bg-brand-600 px-6 text-sm font-bold text-white shadow-md shadow-brand-500/20 transition-all hover:bg-brand-700 hover:shadow-lg active:scale-[0.98]">
+              Tìm chuyến
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <div className="grid min-h-0 grid-cols-[300px_minmax(0,1fr)] gap-4">
+
       {/* --- CỘT BỘ LỌC BÊN TRÁI --- */}
-      <aside className={`h-full min-h-0 overflow-auto rounded-2xl border border-slate-200 bg-white p-5 shadow-sm ${scrollbarClasses}`}>
+      <aside className={`min-h-0 overflow-y-auto overflow-x-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-sm ${scrollbarClasses}`}>
         <div className="sticky top-0 z-10 -mx-5 -mt-5 flex items-center justify-between border-b border-slate-100 bg-white/95 px-5 py-4 backdrop-blur-sm">
           <h2 className="text-xl font-extrabold text-slate-900">Bộ lọc</h2>
           <button 
@@ -559,76 +626,7 @@ export function SearchResultsPage() {
       </aside>
 
       {/* --- CỘT KẾT QUẢ TÌM KIẾM BÊN PHẢI --- */}
-      <div className="grid min-h-0 grid-rows-[auto_minmax(0,1fr)] gap-6">
-         {/* Form Search Trên Cùng */}
-        <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-          <form onSubmit={submitSearch} className="grid gap-4 md:grid-cols-[1fr_1fr_1fr_auto]">
-            <label className="space-y-1.5 text-left">
-              <span className="text-sm font-bold text-slate-700">Điểm đi</span>
-              <div className="relative">
-                <MapPin className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
-                <select
-                  name="from_city"
-                  value={searchForm.from_city}
-                  onChange={updateSearchField}
-                  required
-                  disabled={citiesLoading}
-                  className="h-12 w-full appearance-none rounded-xl border border-slate-200 bg-slate-50 pl-10 pr-3 font-medium outline-none transition-colors focus:border-brand-500 focus:bg-white focus:ring-1 focus:ring-brand-500"
-                >
-                  <option value="" disabled>{citiesLoading ? "Đang tải..." : "Chọn điểm đi"}</option>
-                  {cities.map((city) => (
-                    <option key={city.id} value={city.id}>{city.name}</option>
-                  ))}
-                </select>
-              </div>
-            </label>
-
-            <label className="space-y-1.5 text-left">
-              <span className="text-sm font-bold text-slate-700">Điểm đến</span>
-              <div className="relative">
-                <MapPin className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
-                <select
-                  name="to_city"
-                  value={searchForm.to_city}
-                  onChange={updateSearchField}
-                  required
-                  disabled={citiesLoading}
-                  className="h-12 w-full appearance-none rounded-xl border border-slate-200 bg-slate-50 pl-10 pr-3 font-medium outline-none transition-colors focus:border-brand-500 focus:bg-white focus:ring-1 focus:ring-brand-500"
-                >
-                  <option value="" disabled>{citiesLoading ? "Đang tải..." : "Chọn điểm đến"}</option>
-                  {cities.map((city) => (
-                    <option key={city.id} value={city.id}>{city.name}</option>
-                  ))}
-                </select>
-              </div>
-            </label>
-
-            <label className="space-y-1.5 text-left">
-              <span className="text-sm font-bold text-slate-700">Ngày khởi hành</span>
-              <div className="relative">
-                <CalendarDays className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
-                <input
-                  type="date"
-                  name="date"
-                  value={searchForm.date}
-                  min={today}
-                  onChange={updateSearchField}
-                  required
-                  className="h-12 w-full rounded-xl border border-slate-200 bg-slate-50 pl-10 pr-3 font-medium outline-none transition-colors focus:border-brand-500 focus:bg-white focus:ring-1 focus:ring-brand-500"
-                />
-              </div>
-            </label>
-
-            <div className="flex items-end">
-              <button type="submit" className="h-12 w-full rounded-xl bg-brand-600 px-8 font-bold text-white shadow-md shadow-brand-500/20 transition-all hover:bg-brand-700 hover:shadow-lg active:scale-[0.98]">
-                Tìm chuyến
-              </button>
-            </div>
-          </form>
-        </section>
-
-        {/* Danh Sách Chuyến Đi */}
-        <div className={`min-h-0 overflow-auto pb-4 pr-2 ${scrollbarClasses}`}>
+      <div className={`min-h-0 overflow-y-auto overflow-x-hidden pb-4 pr-2 ${scrollbarClasses}`}>
           {loading && (
             <div className="flex flex-col items-center justify-center py-12 text-slate-500">
                <div className="h-8 w-8 animate-spin rounded-full border-4 border-slate-200 border-t-brand-600 mb-4"></div>
@@ -717,8 +715,8 @@ export function SearchResultsPage() {
               )
             })}
           </div>
-        </div>
       </div>
     </div>
+  </div>
   )
 }

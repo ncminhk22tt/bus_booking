@@ -53,7 +53,7 @@ export function AppLayout() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f5f7fb]">
+    <div className={`min-h-screen ${isSearchPage ? "bg-slate-50/50" : "bg-[#f5f7fb]"}`}>
       {/* HEADER */}
       {!hideHeader && (
         <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur">
@@ -208,14 +208,8 @@ export function AppLayout() {
       )}
 
       {/* MAIN */}
-      <main
-        className={`px-4 py-6 md:px-8 ${
-          isSearchPage
-            ? "h-[calc(100vh-76px)] overflow-hidden"
-            : ""
-        }`}
-      >
-        <div className="mx-auto max-w-[1600px]">
+      <main className={isSearchPage ? "" : "px-4 py-6 md:px-8"}>
+        <div className={isSearchPage ? "" : "mx-auto max-w-[1600px]"}>
           <Outlet />
         </div>
       </main>
