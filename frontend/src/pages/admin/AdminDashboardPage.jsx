@@ -1110,7 +1110,7 @@ export function AdminDashboardPage() {
                       <option value="">Chọn tuyến</option>
                       {uniqueTripRoutes.map((route) => (
                         <option key={route.id} value={route.id}>
-                          #{route.id} - {route.departure_city || cityMap.get(String(route.departure_city_id))} → {route.arrival_city || cityMap.get(String(route.arrival_city_id))}
+                          {route.departure_city || cityMap.get(String(route.departure_city_id))} → {route.arrival_city || cityMap.get(String(route.arrival_city_id))}
                         </option>
                       ))}
                     </select>
@@ -1145,7 +1145,7 @@ export function AdminDashboardPage() {
                     >
                       <option value="">Chọn xe</option>
                       {buses.map((bus) => (
-                        <option key={bus.id} value={bus.id}>#{bus.id} - {bus.name || "(Chưa đặt tên)"} - {bus.license_plate}</option>
+                        <option key={bus.id} value={bus.id}>{bus.name || "(Chưa đặt tên)"}{bus.license_plate ? ` - ${bus.license_plate}` : ""}</option>
                       ))}
                     </select>
                   </label>
@@ -1279,13 +1279,17 @@ export function AdminDashboardPage() {
                     <option value="">Chọn tuyến</option>
                     {routes.map((route) => (
                       (() => {
-                        const plates = Array.from(routeBusPlatesMap.get(String(route.id)) || [])
-                        const plateText = plates.length > 0
-                          ? ` | Biển số: ${plates.slice(0, 2).join(", ")}${plates.length > 2 ? ` (+${plates.length - 2})` : ""}`
+                        const departureCity = route.departure_city || cityMap.get(String(route.departure_city_id))
+                        const arrivalCity = route.arrival_city || cityMap.get(String(route.arrival_city_id))
+                        const pickupText = route.route_pickup_points_text
+                          ? ` | Đón: ${route.route_pickup_points_text}`
+                          : ""
+                        const dropoffText = route.route_dropoff_points_text
+                          ? ` | Trả: ${route.route_dropoff_points_text}`
                           : ""
                         return (
                           <option key={route.id} value={route.id}>
-                            #{route.id} - {route.departure_city} → {route.arrival_city}{plateText}
+                            {departureCity} → {arrivalCity}{pickupText}{dropoffText}
                           </option>
                         )
                       })()
@@ -1454,7 +1458,7 @@ export function AdminDashboardPage() {
                     <option value="">Chọn tuyến</option>
                     {routes.map((route) => (
                       <option key={route.id} value={route.id}>
-                        #{route.id} - {route.departure_city} → {route.arrival_city}
+                        {route.departure_city} → {route.arrival_city}
                       </option>
                     ))}
                   </select>
