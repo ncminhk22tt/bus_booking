@@ -350,7 +350,7 @@ export function SuperAdminDashboardPage() {
                       <article key={company.id} className={`px-4 py-4 ${index % 2 === 0 ? "bg-white" : "bg-slate-50"}`}>
                         <div className="flex flex-wrap items-start justify-between gap-3">
                           <div className="min-w-[220px] flex-1">
-                            <p className="font-bold text-slate-900">#{company.id} - {company.name}</p>
+                            <p className="font-bold text-slate-900">{company.name}</p>
                             <p className="text-sm text-slate-600">SĐT: {company.phone || "--"}</p>
                             <p className="text-sm text-slate-600">Địa chỉ: {company.address || "--"}</p>
                             <p className="text-sm text-slate-600">Số admin: {company.admin_count || 0}</p>
