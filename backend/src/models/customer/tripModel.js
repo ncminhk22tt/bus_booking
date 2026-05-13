@@ -113,7 +113,8 @@ function buildSearchWhere(fromCity, toCity, date, filters, params) {
   let where = `
     WHERE routes.departure_city_id = ?
     AND routes.arrival_city_id = ?
-    AND DATE(trips.departure_time) = ?
+    AND trips.departure_time >= ?
+    AND trips.departure_time < DATE_ADD(?, INTERVAL 1 DAY)
     AND trips.departure_time > NOW()
     AND trips.status = 'open'
     AND IFNULL(buses.is_active, 1) = 1
@@ -121,7 +122,7 @@ function buildSearchWhere(fromCity, toCity, date, filters, params) {
 
   `
 
-  params.push(fromCity, toCity, date)
+  params.push(fromCity, toCity, date, date)
 
   where += buildInClause("buses.bus_company_id", busCompanyIds, params)
   where += buildInClause("buses.bus_type_id", busTypeIds, params)
@@ -263,12 +264,12 @@ async function searchTrips(fromCity, toCity, date, rawFilters = {}) {
 }
 
 async function getSearchFilters(fromCity, toCity, date) {
-  const params = [fromCity, toCity, date]
+  const params = [fromCity, toCity, date, date]
   const baseWhere = `
     WHERE routes.departure_city_id = ?
     AND routes.arrival_city_id = ?
-    AND DATE(trips.departure_time) = ?
-    AND trips.departure_time > NOW()
+    AND trips.departure_time >= ?
+    AND trips.departure_time < DATE_ADD(?, INTERVAL 1 DAY)
     AND trips.status = 'open'
     AND IFNULL(buses.is_active, 1) = 1
     AND IFNULL(routes.is_active, 1) = 1

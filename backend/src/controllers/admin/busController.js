@@ -113,7 +113,7 @@ const createBus = async (req, res) => {
       })
     }
 
-    if (!busType.layout || !seatService.parseLayoutGroups(busType.layout)) {
+    if (!seatService.hasValidSeatMapDefinition(busType)) {
       return res.status(400).json({
         message: "Loại xe chưa có layout ghế hợp lệ"
       })
@@ -235,7 +235,7 @@ const updateBus = async (req, res) => {
         })
       }
 
-      if (!nextBusType.layout || !seatService.parseLayoutGroups(nextBusType.layout)) {
+      if (!seatService.hasValidSeatMapDefinition(nextBusType)) {
         return res.status(400).json({
           message: "Loại xe chưa có sơ đồ ghế hợp lệ"
         })

@@ -1,6 +1,8 @@
 ﻿const db = require("../config/db")
 const { generateSeatLabel } = require("../utils/seatLayoutHelper")
 
+const VALID_SEAT_TYPES = ["seat", "bed", "vip"]
+
 function parseLayoutGroups(layout) {
   const groups = String(layout || "")
     .split("-")
@@ -12,6 +14,29 @@ function parseLayoutGroups(layout) {
   }
 
   return groups
+}
+
+function normalizeSeatType(seatType) {
+  const value = String(seatType || "").toLowerCase().trim()
+  return VALID_SEAT_TYPES.includes(value) ? value : "seat"
+}
+
+function hasValidSeatMapDefinition(busType = {}) {
+  if (busType && busType.seat_map_template) {
+    try {
+      const parsed = typeof busType.seat_map_template === "string"
+        ? JSON.parse(busType.seat_map_template)
+        : busType.seat_map_template
+
+      if (parsed && Array.isArray(parsed.floors) && parsed.floors.length > 0) {
+        return true
+      }
+    } catch (error) {
+      // fallback to layout parsing
+    }
+  }
+
+  return parseLayoutGroups(busType.layout) !== null
 }
 
 function isLimousineNineBusType(busType = {}) {
@@ -196,6 +221,9 @@ function buildLuxuryThirtyFourSeats(busId, seatType) {
 
 async function createSeatMap(busId, busType, executor = db) {
   const { floors, row_count, layout, seat_type, seat_map_template } = busType
+  const normalizedSeatType = normalizeSeatType(seat_type)
+  const floorCount = Number(floors) || 0
+  const rowCount = Number(row_count) || 0
 
   let seats = []
 
@@ -224,11 +252,11 @@ async function createSeatMap(busId, busType, executor = db) {
             if (!Number.isInteger(col) || col <= 0) continue
             seats.push([
               busId,
-              generateSeatLabel(row, seatIndexInRow),
+              generateSeatLabel(row, seatIndexInRow, floor),
               floor,
               row,
               col,
-              seat_type
+              normalizedSeatType
             ])
             seatIndexInRow++
           }
@@ -240,22 +268,22 @@ async function createSeatMap(busId, busType, executor = db) {
   if (seats.length > 0) {
     // no-op, already built from super admin template
   } else if (isSeaterFortyFiveBusType(busType)) {
-    seats = buildSeaterFortyFiveSeats(busId, seat_type)
+    seats = buildSeaterFortyFiveSeats(busId, normalizedSeatType)
   } else if (isLuxuryThirtyFourBusType(busType)) {
-    seats = buildLuxuryThirtyFourSeats(busId, seat_type)
+    seats = buildLuxuryThirtyFourSeats(busId, normalizedSeatType)
   } else if (isSleeperFortyBusType(busType)) {
-    seats = buildSleeperFortySeats(busId, seat_type)
+    seats = buildSleeperFortySeats(busId, normalizedSeatType)
   } else if (isLimousineNineBusType(busType)) {
-    seats = buildLimousineNineSeats(busId, seat_type)
+    seats = buildLimousineNineSeats(busId, normalizedSeatType)
   } else {
     const layoutGroups = parseLayoutGroups(layout)
 
-    if (!layoutGroups) {
+    if (!layoutGroups || floorCount <= 0 || rowCount <= 0) {
       throw new Error("Layout xe không hợp lệ")
     }
 
-    for (let f = 1; f <= floors; f++) {
-      for (let r = 1; r <= row_count; r++) {
+    for (let f = 1; f <= floorCount; f++) {
+      for (let r = 1; r <= rowCount; r++) {
         let seatIndexInRow = 1
         let col = 1
 
@@ -265,11 +293,11 @@ async function createSeatMap(busId, busType, executor = db) {
           for (let i = 1; i <= groupSize; i++) {
             seats.push([
               busId,
-              generateSeatLabel(r, seatIndexInRow),
+              generateSeatLabel(r, seatIndexInRow, f),
               f,
               r,
               col,
-              seat_type
+              normalizedSeatType
             ])
 
             seatIndexInRow++
@@ -284,6 +312,13 @@ async function createSeatMap(busId, busType, executor = db) {
     }
   }
 
+  const seatLabels = seats.map((item) => String(item[1]))
+  const duplicates = seatLabels.filter((label, index) => seatLabels.indexOf(label) !== index)
+  if (duplicates.length > 0) {
+    const uniqueDuplicates = [...new Set(duplicates)]
+    throw new Error(`Duplicate seat labels detected: ${uniqueDuplicates.join(", ")}`)
+  }
+
   await executor.query(
     `INSERT INTO seats
     (bus_id, seat_number, floor, row_index, col_index, seat_type)
@@ -295,6 +330,7 @@ async function createSeatMap(busId, busType, executor = db) {
 module.exports = {
   createSeatMap,
   parseLayoutGroups,
+  hasValidSeatMapDefinition,
   isLimousineNineBusType,
   isSeaterFortyFiveBusType,
   isSleeperFortyBusType,
