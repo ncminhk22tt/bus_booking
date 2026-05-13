@@ -107,22 +107,21 @@ function buildSearchWhere(fromCity, toCity, date, filters, params) {
     departureHourFrom,
     departureHourTo,
     minPrice,
-    maxPrice,
-    minRating
+    maxPrice
   } = filters
 
   let where = `
     WHERE routes.departure_city_id = ?
     AND routes.arrival_city_id = ?
-    AND trips.departure_time >= ?
-    AND trips.departure_time < DATE_ADD(?, INTERVAL 1 DAY)
+    AND DATE(trips.departure_time) = ?
+    AND trips.departure_time > NOW()
     AND trips.status = 'open'
     AND IFNULL(buses.is_active, 1) = 1
     AND IFNULL(routes.is_active, 1) = 1
 
   `
 
-  params.push(fromCity, toCity, date, date)
+  params.push(fromCity, toCity, date)
 
   where += buildInClause("buses.bus_company_id", busCompanyIds, params)
   where += buildInClause("buses.bus_type_id", busTypeIds, params)
@@ -160,11 +159,6 @@ function buildSearchWhere(fromCity, toCity, date, filters, params) {
     params.push(maxPrice)
   }
 
-  if (minRating !== null) {
-    where += " AND (4 + (bus_companies.id % 10) / 10) >= ?"
-    params.push(minRating)
-  }
-
   return where
 }
 
@@ -188,9 +182,6 @@ function normalizeFilters(rawFilters = {}) {
     : null
   const minPrice = rawFilters.min_price ? Number(rawFilters.min_price) : null
   const maxPrice = rawFilters.max_price ? Number(rawFilters.max_price) : null
-  const minRating = rawFilters.min_rating !== undefined && rawFilters.min_rating !== ""
-    ? Number(rawFilters.min_rating)
-    : null
 
   return {
     busCompanyIds: toNumberList(rawFilters.bus_company_ids),
@@ -210,11 +201,7 @@ function normalizeFilters(rawFilters = {}) {
         ? null
         : Math.min(24, Math.max(0, departureHourTo)),
     minPrice: Number.isNaN(minPrice) ? null : minPrice,
-    maxPrice: Number.isNaN(maxPrice) ? null : maxPrice,
-    minRating:
-      minRating === null || Number.isNaN(minRating)
-        ? null
-        : Math.min(5, Math.max(0, minRating))
+    maxPrice: Number.isNaN(maxPrice) ? null : maxPrice
   }
 }
 
@@ -240,7 +227,6 @@ async function searchTrips(fromCity, toCity, date, rawFilters = {}) {
       buses.image_url AS bus_image_url,
       bus_companies.id AS bus_company_id,
       bus_companies.name AS bus_company_name,
-      (4 + (bus_companies.id % 10) / 10) AS rating,
       bus_types.id AS bus_type_id,
       bus_types.name AS bus_type_name,
       bus_types.seat_type,
@@ -277,12 +263,12 @@ async function searchTrips(fromCity, toCity, date, rawFilters = {}) {
 }
 
 async function getSearchFilters(fromCity, toCity, date) {
-  const params = [fromCity, toCity, date, date]
+  const params = [fromCity, toCity, date]
   const baseWhere = `
     WHERE routes.departure_city_id = ?
     AND routes.arrival_city_id = ?
-    AND trips.departure_time >= ?
-    AND trips.departure_time < DATE_ADD(?, INTERVAL 1 DAY)
+    AND DATE(trips.departure_time) = ?
+    AND trips.departure_time > NOW()
     AND trips.status = 'open'
     AND IFNULL(buses.is_active, 1) = 1
     AND IFNULL(routes.is_active, 1) = 1
@@ -294,8 +280,7 @@ async function getSearchFilters(fromCity, toCity, date) {
     SELECT
       bus_companies.id,
       bus_companies.name,
-      COUNT(DISTINCT trips.id) AS trip_count,
-      (4 + (bus_companies.id % 10) / 10) AS rating
+      COUNT(DISTINCT trips.id) AS trip_count
     FROM trips
     JOIN routes ON trips.route_id = routes.id
     JOIN buses ON trips.bus_id = buses.id

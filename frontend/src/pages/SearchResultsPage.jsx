@@ -60,8 +60,7 @@ export function SearchResultsPage() {
     min_price: "",
     max_price: "",
     departure_hour_from: "",
-    departure_hour_to: "",
-    min_rating: ""
+    departure_hour_to: ""
   })
 
   const [searchForm, setSearchForm] = useState({
@@ -147,7 +146,6 @@ export function SearchResultsPage() {
           dropoff_point_ids: [],
           departure_hour_from: "",
           departure_hour_to: "",
-          min_rating: "",
           min_price: maxPrice > 0 ? String(minPrice) : "",
           max_price: maxPrice > 0 ? String(maxPrice) : ""
         })
@@ -179,8 +177,7 @@ export function SearchResultsPage() {
         min_price: selected.min_price || undefined,
         max_price: selected.max_price || undefined,
         departure_hour_from: selected.departure_hour_from || undefined,
-        departure_hour_to: selected.departure_hour_to || undefined,
-        min_rating: selected.min_rating || undefined
+        departure_hour_to: selected.departure_hour_to || undefined
       }
 
       const data = await api.searchTrips(payload)
@@ -240,8 +237,7 @@ export function SearchResultsPage() {
       min_price: String(filters?.price_range?.min ?? ""),
       max_price: String(filters?.price_range?.max ?? ""),
       departure_hour_from: "",
-      departure_hour_to: "",
-      min_rating: ""
+      departure_hour_to: ""
     })
     setCompanyKeyword("")
     setBusTypeKeyword("")
@@ -468,11 +464,6 @@ export function SearchResultsPage() {
                           <span className="text-sm text-slate-700 group-hover/item:text-slate-900">{company.name}</span>
                         </span>
                         <div className="flex flex-col items-end gap-1">
-                           {company.rating > 0 && (
-                            <span className="flex items-center text-[11px] font-semibold text-slate-600">
-                              {Number(company.rating).toFixed(1)} <Star className="ml-0.5 h-3 w-3 fill-yellow-400 text-yellow-400" />
-                            </span>
-                          )}
                           <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-medium text-slate-500">
                             {company.trip_count || 0} chuyến
                           </span>
@@ -505,7 +496,6 @@ export function SearchResultsPage() {
                       />
                       <span className="text-sm text-slate-700 group-hover/item:text-slate-900">{point.name}</span>
                     </div>
-                    <span className="text-xs text-slate-400">({point.trip_count || 0})</span>
                   </label>
                 )
               })}
@@ -532,7 +522,7 @@ export function SearchResultsPage() {
                       />
                       <span className="text-sm text-slate-700 group-hover/item:text-slate-900">{point.name}</span>
                     </div>
-                    <span className="text-xs text-slate-400">({point.trip_count || 0})</span>
+
                   </label>
                 )
               })}
@@ -595,33 +585,6 @@ export function SearchResultsPage() {
             </div>
           </details>
 
-          {/* Lọc Đánh Giá */}
-          <details className="group py-2">
-            <summary className={summaryClasses}>
-              Đánh giá tối thiểu
-              <ChevronDown className="h-4 w-4 text-slate-400 transition-transform duration-200 group-open:rotate-180" />
-            </summary>
-            <div className="pb-3 pt-1">
-               <div className="grid grid-cols-5 gap-2">
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <button
-                    key={star}
-                    type="button"
-                    onClick={() => setSelected((prev) => ({ ...prev, min_rating: String(star) }))}
-                    className={`flex flex-col items-center justify-center rounded-xl border py-2 transition-all ${
-                      selected.min_rating === String(star)
-                        ? "border-brand-600 bg-brand-50 text-brand-600 ring-1 ring-brand-600"
-                        : "border-slate-200 bg-white text-slate-400 hover:border-slate-300 hover:bg-slate-50"
-                    }`}
-                  >
-                    <Star className={`h-5 w-5 ${selected.min_rating === String(star) || Number(selected.min_rating) >= star ? "fill-yellow-400 text-yellow-400" : "fill-transparent"}`} />
-                    <span className="mt-1 text-xs font-semibold">{star}+</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-          </details>
-
         </div>
       </aside>
 
@@ -669,9 +632,6 @@ export function SearchResultsPage() {
                     <div className="flex flex-col justify-center">
                       <div className="flex items-center gap-2">
                         <h2 className="text-xl font-bold text-slate-900">{trip.bus_company_name}</h2>
-                        <span className="flex items-center rounded bg-brand-50 px-1.5 py-0.5 text-[11px] font-bold text-brand-700">
-                          <Star className="mr-1 h-3 w-3 fill-brand-600" /> {Number(trip.rating || 0).toFixed(1)}
-                        </span>
                       </div>
                       <p className="mt-1 text-sm font-medium text-slate-600">{trip.bus_type_name}</p>
                       
@@ -683,12 +643,12 @@ export function SearchResultsPage() {
                         </div>
                         <div className="flex flex-col justify-between py-0.5">
                            <div>
-                             <span className="text-lg font-bold text-slate-900">{formatTime(trip.departure_time)}</span>
+                             <span className="text-lg font-bold text-slate-900">{formatDateTime(trip.departure_time)}</span>
                              <span className="ml-2 text-sm text-slate-600">• {trip.from_city}</span>
                            </div>
                            <div className="text-xs font-medium text-slate-400">{calcDuration(trip.departure_time, trip.arrival_time)}</div>
                            <div>
-                             <span className="text-lg font-bold text-slate-900">{formatTime(trip.arrival_time)}</span>
+                             <span className="text-lg font-bold text-slate-900">{formatDateTime(trip.arrival_time)}</span>
                              <span className="ml-2 text-sm text-slate-600">• {trip.to_city}</span>
                            </div>
                         </div>
