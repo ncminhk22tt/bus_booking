@@ -927,7 +927,7 @@ export function AdminDashboardPage() {
                         </div>
 
                         <div className="min-w-0 flex-1">
-                          <p className="font-semibold text-slate-900">#{bus.id} - {bus.name || "(Chưa đặt tên)"}</p>
+                          <p className="font-semibold text-slate-900">{bus.name || "(Chưa đặt tên)"}</p>
                           <p className="text-sm text-slate-600">Biển số: {bus.license_plate}</p>
                           <p className="text-sm text-slate-600">Loại xe: {bus.bus_type_name}</p>
                           <p className="text-sm text-slate-600">Sơ đồ: {bus.layout || "--"} | Tầng: {bus.floors || "--"} | Hàng: {bus.row_count || "--"}</p>
@@ -1061,7 +1061,7 @@ export function AdminDashboardPage() {
               <div className="h-full min-h-0 space-y-2 overflow-auto pr-1 pb-1">
                 {routes.map((route) => (
                   <div key={route.id} className="rounded-xl border border-slate-200 p-3">
-                    <p className="font-semibold text-slate-900">#{route.id} - {route.departure_city} → {route.arrival_city}</p>
+                    <p className="font-semibold text-slate-900">{route.departure_city} → {route.arrival_city}</p>
                     <p className="text-sm text-slate-600">{route.distance_km} km | {route.estimated_time} giờ</p>
                     <p className="text-sm text-slate-600">Điểm đón: {route.route_pickup_points_text || "--"}</p>
                     <p className="text-sm text-slate-600">Điểm trả: {route.route_dropoff_points_text || "--"}</p>
@@ -1231,7 +1231,7 @@ export function AdminDashboardPage() {
                     </div>
 
                     <div className="min-w-0 flex-1">
-                      <p className="font-semibold text-slate-900">#{trip.id} - {trip.departure_city} → {trip.arrival_city}</p>
+                      <p className="font-semibold text-slate-900">{trip.departure_city} → {trip.arrival_city}</p>
                       <p className="text-sm text-slate-600">Xe: {trip.bus_name} ({trip.license_plate})</p>
                       <p className="text-sm text-slate-600">Giờ đi: {formatDateTime(trip.departure_time)}</p>
                       <p className="text-sm text-slate-600">Điểm đón: {trip.pickup_points_text || "--"}</p>
@@ -1308,7 +1308,7 @@ export function AdminDashboardPage() {
                     <option value="">{bookingRouteId ? "Chọn chuyến" : "Chọn tuyến trước"}</option>
                     {bookingTrips.map((trip) => (
                       <option key={trip.id} value={trip.id}>
-                        #{trip.id} - {formatDateTime(trip.departure_time)} - {trip.license_plate || "Chưa có biển số"}
+                        {formatDateTime(trip.departure_time)} - {trip.license_plate || "Chưa có biển số"}
                       </option>
                     ))}
                   </select>
@@ -1479,7 +1479,7 @@ export function AdminDashboardPage() {
                     <option value="">{seatRouteId ? "Chọn chuyến" : "Chọn tuyến trước"}</option>
                     {seatTrips.map((trip) => (
                       <option key={trip.id} value={trip.id}>
-                        #{trip.id} - {formatDateTime(trip.departure_time)} - {trip.license_plate || "Chưa có biển số"}
+                        {formatDateTime(trip.departure_time)} - {trip.license_plate || "Chưa có biển số"}
                       </option>
                     ))}
                   </select>
