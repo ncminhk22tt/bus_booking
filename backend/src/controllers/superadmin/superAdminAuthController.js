@@ -29,7 +29,7 @@ exports.login = async (req, res) => {
     const token = jwt.sign(
       { id: admin.id, role: admin.role },
       process.env.JWT_SECRET,
-      { expiresIn: "1d" }
+      { expiresIn: "7d" }
     )
 
     return res.json({ message: "Đăng nhập thành công", token })

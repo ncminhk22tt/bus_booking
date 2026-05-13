@@ -41,9 +41,12 @@ module.exports = (req, res, next) => {
   } catch (error) {
 
     console.error("Super admin JWT error:", error.message)
+    const message = error.name === "TokenExpiredError"
+      ? "Token đã hết hạn, vui lòng đăng nhập lại"
+      : "Token không hợp lệ"
 
     return res.status(401).json({
-      message: "Token không hợp lệ"
+      message
     })
 
   }

@@ -14,6 +14,12 @@ async function request(path, options = {}) {
   const body = contentType.includes("application/json") ? await response.json() : await response.text()
 
   if (!response.ok) {
+    if (response.status === 401) {
+      setSuperAdminAuthToken(null)
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new Event("super-admin-logout"))
+      }
+    }
     const message = typeof body === "object" && body?.message ? body.message : "Yêu cầu thất bại"
     throw new Error(message)
   }
